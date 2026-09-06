@@ -157,9 +157,6 @@ export default function App() {
       // Authenticated user
       if (currentTab === 'auth') {
         navigateTo('dashboard', true);
-      } else if (currentTab === 'home' && window.location.pathname === '/') {
-        // If logged in and on root, send to dashboard
-        navigateTo('dashboard', true);
       } else if (currentTab === 'not-found') {
         setActiveTab('not-found');
       } else {
