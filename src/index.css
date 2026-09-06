@@ -1,0 +1,131 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --bg-primary: #080711;
+    --bg-secondary: #0E0C1B;
+    --surface: #121025;
+    --card: #151329;
+    --card-hover: #1B1833;
+    --elevated: #1D1938;
+    --border: #292344;
+    --subtle-border: rgba(255, 255, 255, 0.08);
+
+    --gold-primary: #C6A75E;
+    --gold-highlight: #E1C77A;
+    --gold-light: #F0DFA8;
+
+    --ai-indigo: #6366A8;
+    --deep-indigo: #312E63;
+    --soft-purple: #7C6BA8;
+
+    --text-primary: #F5F1E8;
+    --text-secondary: #AAA6B7;
+    --text-muted: #706C7C;
+
+    --success: #4F9D69;
+    --warning: #C49A4A;
+    --error: #A94D4D;
+    --info: #6688B5;
+  }
+
+  body {
+    background-color: #080711;
+    color: #F5F1E8;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #080711;
+}
+::-webkit-scrollbar-thumb {
+  background: #292344;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #C6A75E;
+}
+
+/* Global Subtle Ambient Layer */
+.luxury-ambient-bg {
+  background-color: #080711;
+  background-image: 
+    radial-gradient(circle at 10% 15%, rgba(99, 102, 168, 0.08) 0%, transparent 45%),
+    radial-gradient(circle at 90% 10%, rgba(198, 167, 94, 0.04) 0%, transparent 40%),
+    radial-gradient(circle at 50% 60%, rgba(124, 107, 168, 0.04) 0%, transparent 50%);
+}
+
+/* Premium Gold Button */
+.btn-gold-primary {
+  background: linear-gradient(135deg, #C6A75E 0%, #E1C77A 100%);
+  color: #080711;
+  font-weight: 600;
+  border: none;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 4px 14px rgba(198, 167, 94, 0.2);
+}
+.btn-gold-primary:hover {
+  filter: brightness(1.06);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(198, 167, 94, 0.3);
+}
+
+/* Secondary Button */
+.btn-secondary-luxury {
+  background: transparent;
+  border: 1px solid #292344;
+  color: #F5F1E8;
+  transition: all 0.2s ease-in-out;
+}
+.btn-secondary-luxury:hover {
+  background: #151329;
+  border-color: #C6A75E;
+  color: #F0DFA8;
+  transform: translateY(-1px);
+}
+
+/* AI Action Button */
+.btn-ai-luxury {
+  background: linear-gradient(135deg, #312E63 0%, #6366A8 100%);
+  color: #F5F1E8;
+  font-weight: 600;
+  border: 1px solid rgba(124, 107, 168, 0.35);
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 4px 14px rgba(99, 102, 168, 0.2);
+}
+.btn-ai-luxury:hover {
+  filter: brightness(1.08);
+  border-color: rgba(198, 167, 94, 0.5);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(99, 102, 168, 0.35);
+}
+
+/* Standard Card */
+.card-luxury {
+  background-color: #151329;
+  border: 1px solid #292344;
+  border-radius: 16px;
+  transition: all 0.25s ease;
+}
+.card-luxury:hover {
+  background-color: #1B1833;
+  border-color: rgba(198, 167, 94, 0.30);
+  transform: translateY(-1px);
+}
+
+/* Premium Card Border Gradient */
+.card-luxury-premium {
+  position: relative;
+  border-radius: 18px;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(198, 167, 94, 0.70) 0%, rgba(99, 102, 168, 0.35) 50%, rgba(198, 167, 94, 0.15) 100%);
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.35);
+}

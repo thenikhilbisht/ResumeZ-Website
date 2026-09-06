@@ -1,0 +1,6 @@
+{
+  "name": "ResumeZ",
+  "description": "AI-powered career toolkit featuring an ATS Resume Analyzer, Resume Builder, GitHub Analyzer, and LeetCode Analyzer.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
