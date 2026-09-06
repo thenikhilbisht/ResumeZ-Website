@@ -87,8 +87,8 @@ const supabaseAdmin = isSupabaseAdminConfigured
   : null;
 
 // ---------------- Server-Side Gemini AI Client ----------------
-const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
-const FALLBACK_GEMINI_MODELS = ['gemini-2.5-flash', 'gemini-1.5-flash', 'gemini-2.0-flash-lite'];
+const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-3.6-flash';
+const FALLBACK_GEMINI_MODELS = ['gemini-3.6-flash', 'gemini-2.5-flash', 'gemini-1.5-flash'];
 
 const getGeminiClient = () => {
   const apiKey = process.env.GEMINI_API_KEY;
