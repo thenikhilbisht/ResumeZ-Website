@@ -67,19 +67,24 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 
-if (!supabaseUrl || !supabaseServiceKey) {
+const isSupabaseAdminConfigured = Boolean(
+  supabaseUrl &&
+  supabaseServiceKey &&
+  supabaseUrl.startsWith('http') &&
+  !supabaseUrl.includes('placeholder')
+);
+
+if (!isSupabaseAdminConfigured) {
   console.warn(
-    '[Server Auth] WARNING: SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY is not configured in server environment variables. Authenticated requests will fail.'
+    '[Server Auth] WARNING: SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY is not configured in environment variables. Authenticated requests will require Railway environment setup.'
   );
 }
 
-const supabaseAdmin = createClient(
-  supabaseUrl,
-  supabaseServiceKey,
-  {
-    auth: { autoRefreshToken: false, persistSession: false },
-  }
-);
+const supabaseAdmin = isSupabaseAdminConfigured
+  ? createClient(supabaseUrl, supabaseServiceKey, {
+      auth: { autoRefreshToken: false, persistSession: false },
+    })
+  : null;
 
 // ---------------- Server-Side Gemini AI Client ----------------
 const getGeminiClient = () => {
@@ -139,6 +144,13 @@ declare module 'express-serve-static-core' {
  * Never trusts x-guest-id or client-provided identifiers.
  */
 const requireAuth = async (req: Request, res: Response, next: NextFunction) => {
+  if (!supabaseAdmin) {
+    return res.status(500).json({
+      success: false,
+      error: 'Supabase Auth is not configured on the server. Please add SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY to your Railway environment variables.',
+    });
+  }
+
   const authHeader = req.headers.authorization;
   const token =
     authHeader && authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : null;
