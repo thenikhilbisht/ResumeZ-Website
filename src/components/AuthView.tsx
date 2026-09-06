@@ -18,6 +18,9 @@ export const AuthView: React.FC = () => {
     setLoading(true);
 
     try {
+      if (!supabase) {
+        throw new Error('Authentication service is not configured. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in Vercel environment variables.');
+      }
       if (isLogin) {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) {

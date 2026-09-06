@@ -301,7 +301,7 @@ export const ProfileSettingsView: React.FC<ProfileSettingsViewProps> = ({
 
   const handleConfirmOtp = async () => {
     try {
-      const token = (await supabase.auth.getSession()).data.session?.access_token;
+      const token = supabase ? (await supabase.auth.getSession()).data.session?.access_token : undefined;
       const res = await fetch(getApiUrl('/api/user/verify-phone'), {
         method: 'POST',
         headers: {
@@ -339,6 +339,9 @@ export const ProfileSettingsView: React.FC<ProfileSettingsViewProps> = ({
     setPasswordMessage(null);
 
     try {
+      if (!supabase) {
+        throw new Error('Authentication is unconfigured. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.');
+      }
       const { error } = await supabase.auth.updateUser({ password: newPassword });
       if (error) {
         setPasswordMessage({ type: 'error', text: error.message });

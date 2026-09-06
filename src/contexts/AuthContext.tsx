@@ -69,6 +69,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     let isMounted = true;
 
+    if (!supabase) {
+      if (isMounted) setIsLoading(false);
+      return;
+    }
+
     // 1. Initial Session Restoration
     supabase.auth
       .getSession()
@@ -122,13 +127,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     return () => {
       isMounted = false;
-      subscription.unsubscribe();
+      subscription?.unsubscribe();
     };
   }, [fetchProfileAndBalance]);
 
   const signOut = async () => {
     try {
-      await supabase.auth.signOut();
+      if (supabase) {
+        await supabase.auth.signOut();
+      }
     } catch {
       // Ignore
     } finally {
