@@ -87,6 +87,9 @@ const supabaseAdmin = isSupabaseAdminConfigured
   : null;
 
 // ---------------- Server-Side Gemini AI Client ----------------
+const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+const FALLBACK_GEMINI_MODELS = ['gemini-2.5-flash', 'gemini-1.5-flash', 'gemini-2.0-flash-lite'];
+
 const getGeminiClient = () => {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
@@ -103,30 +106,52 @@ const getGeminiClient = () => {
 };
 
 const generateContentWithRetry = async (ai: GoogleGenAI, request: any, maxRetries = 2) => {
-  let attempt = 0;
-  while (attempt < maxRetries) {
-    try {
-      const callPromise = ai.models.generateContent(request);
-      const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('Gemini API call timed out after 25s')), 25000)
-      );
-      return (await Promise.race([callPromise, timeoutPromise])) as any;
-    } catch (error: any) {
-      attempt++;
-      const isUnavailable =
-        error.status === 503 ||
-        error.status === 'UNAVAILABLE' ||
-        (error.message && error.message.includes('503')) ||
-        (error.message && error.message.includes('timed out'));
+  const modelList = Array.from(new Set([request.model || GEMINI_MODEL, ...FALLBACK_GEMINI_MODELS]));
+  let lastError: any = null;
 
-      if (!isUnavailable || attempt >= maxRetries) {
-        throw error;
+  for (const modelCandidate of modelList) {
+    let attempt = 0;
+    while (attempt < maxRetries) {
+      try {
+        const callPromise = ai.models.generateContent({
+          ...request,
+          model: modelCandidate,
+        });
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Gemini API call timed out after 25s')), 25000)
+        );
+        return (await Promise.race([callPromise, timeoutPromise])) as any;
+      } catch (error: any) {
+        lastError = error;
+        const errStr = String(error?.message || error?.status || '');
+        const isNotFoundOrDeprecated =
+          error?.status === 404 ||
+          error?.code === 404 ||
+          errStr.includes('404') ||
+          errStr.includes('no longer available') ||
+          errStr.includes('NOT_FOUND');
+
+        if (isNotFoundOrDeprecated) {
+          console.warn(`[Gemini AI] Model ${modelCandidate} unavailable (${errStr}). Trying next fallback model...`);
+          break;
+        }
+
+        attempt++;
+        const isUnavailable =
+          error.status === 503 ||
+          error.status === 'UNAVAILABLE' ||
+          errStr.includes('503') ||
+          errStr.includes('timed out');
+
+        if (!isUnavailable || attempt >= maxRetries) {
+          throw error;
+        }
+        console.log(`[Gemini API] Retrying request on ${modelCandidate} (attempt ${attempt}/${maxRetries})...`);
+        await new Promise((resolve) => setTimeout(resolve, 1200));
       }
-      console.log(`[Gemini API] Retrying request (attempt ${attempt}/${maxRetries})...`);
-      await new Promise((resolve) => setTimeout(resolve, 1200));
     }
   }
-  throw new Error('Max retries exceeded for Gemini API call');
+  throw lastError || new Error('Max retries exceeded for Gemini API call');
 };
 
 // ---------------- Request Extension & Authentication ----------------
@@ -586,7 +611,7 @@ Target Role: ${target_job_title || 'Software Engineer'}
 Provide an actionable, realistic ATS audit evaluating keyword frequency, technical competencies, quantifiable outcomes, formatting readiness, and section-by-section breakdown.`;
 
     const response = await generateContentWithRetry(ai, {
-      model: 'gemini-2.0-flash',
+      model: GEMINI_MODEL,
       contents: prompt,
       config: {
         systemInstruction:
@@ -794,7 +819,7 @@ Original Bullet:
 Provide 3 distinct professional variations (Metric-focused, Leadership/Initiative, Technical Depth) and explain why each variation is stronger.`;
 
     const response = await generateContentWithRetry(ai, {
-      model: 'gemini-2.0-flash',
+      model: GEMINI_MODEL,
       contents: prompt,
       config: {
         responseMimeType: 'application/json',
@@ -943,7 +968,7 @@ ${JSON.stringify(repoSummaries, null, 2)}
 Provide an honest, constructive software engineering assessment including developer archetype, code quality indicators, repository documentation standards, top strengths, weaknesses, and high-impact suggestions.`;
 
     const response = await generateContentWithRetry(ai, {
-      model: 'gemini-2.0-flash',
+      model: GEMINI_MODEL,
       contents: prompt,
       config: {
         responseMimeType: 'application/json',
@@ -1170,7 +1195,7 @@ ${JSON.stringify(leetcodeStats, null, 2)}
 Provide an algorithmic competency evaluation, FAANG interview readiness tier, problem balance assessment (Easy/Medium/Hard distribution), consistency analysis, identified topic gaps, and a targeted 4-week study plan with high-yield patterns.`;
 
     const response = await generateContentWithRetry(ai, {
-      model: 'gemini-2.0-flash',
+      model: GEMINI_MODEL,
       contents: prompt,
       config: {
         responseMimeType: 'application/json',
@@ -1303,7 +1328,7 @@ app.post('/api/ai/chat', requireAuth, async (req: Request, res: Response) => {
     });
 
     const response = await generateContentWithRetry(ai, {
-      model: 'gemini-2.0-flash',
+      model: GEMINI_MODEL,
       contents,
       config: {
         systemInstruction:
