@@ -3,8 +3,11 @@ import { createClient } from '@supabase/supabase-js';
 
 const metaEnv = (import.meta as any).env || {};
 
-const supabaseUrl = metaEnv.VITE_SUPABASE_URL || '';
-const supabaseAnonKey = metaEnv.VITE_SUPABASE_ANON_KEY || metaEnv.VITE_SUPABASE_PUBLISHABLE_KEY || '';
+const DEFAULT_SUPABASE_URL = 'https://czadgqloetsbyjznjtng.supabase.co';
+const DEFAULT_SUPABASE_ANON_KEY = 'sb_publishable_4q-gTydoHcNPWIq98g3oEA_KJRAZU8_';
+
+const supabaseUrl = metaEnv.VITE_SUPABASE_URL || DEFAULT_SUPABASE_URL;
+const supabaseAnonKey = metaEnv.VITE_SUPABASE_ANON_KEY || metaEnv.VITE_SUPABASE_PUBLISHABLE_KEY || DEFAULT_SUPABASE_ANON_KEY;
 
 export const isSupabaseConfigured = Boolean(
   supabaseUrl &&
