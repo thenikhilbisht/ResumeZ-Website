@@ -1,6 +1,6 @@
 import { useAuth } from '../contexts/AuthContext';
 import React, { useState, useRef } from 'react';
-import { getAuthHeaders } from '../lib/api';
+import { getAuthHeaders, getApiUrl } from '../lib/api';
 import { 
   Sparkles, 
   Upload, 
@@ -176,7 +176,7 @@ export const ResumeAnalyzerView: React.FC<ResumeAnalyzerViewProps> = ({
     setErrorMessage(null);
 
     try {
-      const response = await fetch('/api/ai/analyze-resume', {
+      const response = await fetch(getApiUrl('/api/ai/analyze-resume'), {
         method: 'POST',
         headers: getAuthHeaders(session?.access_token),
         body: JSON.stringify({
@@ -215,7 +215,7 @@ export const ResumeAnalyzerView: React.FC<ResumeAnalyzerViewProps> = ({
   const handleQuickRefill = async () => {
     setIsRefilling(true);
     try {
-      const res = await fetch('/api/user/refill', {
+      const res = await fetch(getApiUrl('/api/user/refill'), {
         method: 'POST',
         headers: getAuthHeaders(session?.access_token),
         body: JSON.stringify({ amount: 10, plan_name: 'Instant Refill' }),

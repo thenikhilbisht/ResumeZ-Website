@@ -18,9 +18,9 @@ import {
 } from 'lucide-react';
 import QRCode from 'qrcode';
 import { UserProfile, UsageBalance, Plan, PaymentConfig, PaymentRequest } from '../types';
+import { getAuthHeaders, getApiUrl } from '../lib/api';
 import { DEFAULT_PLANS } from '../data/sampleData';
 import { useAuth } from '../contexts/AuthContext';
-import { getAuthHeaders } from '../lib/api';
 
 interface CheckoutPaymentViewProps {
   selectedPlanId: string;
@@ -71,7 +71,7 @@ export const CheckoutPaymentView: React.FC<CheckoutPaymentViewProps> = ({
   // Fetch backend payment config
   const fetchPaymentConfig = async () => {
     try {
-      const res = await fetch('/api/payment/config');
+      const res = await fetch(getApiUrl('/api/payment/config'));
       if (res.ok) {
         const text = await res.text();
         try {
@@ -92,7 +92,7 @@ export const CheckoutPaymentView: React.FC<CheckoutPaymentViewProps> = ({
   const fetchMyPayments = async () => {
     setIsLoadingHistory(true);
     try {
-      const res = await fetch('/api/payment/my-requests', {
+      const res = await fetch(getApiUrl('/api/payment/my-requests'), {
         headers: getAuthHeaders(session?.access_token),
       });
       if (res.ok) {
@@ -172,7 +172,7 @@ export const CheckoutPaymentView: React.FC<CheckoutPaymentViewProps> = ({
 
     setIsSubmitting(true);
     try {
-      const res = await fetch('/api/payment/submit', {
+      const res = await fetch(getApiUrl('/api/payment/submit'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

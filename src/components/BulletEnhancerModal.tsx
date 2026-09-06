@@ -1,6 +1,6 @@
 import { useAuth } from '../contexts/AuthContext';
 import React, { useState } from 'react';
-import { getAuthHeaders } from '../lib/api';
+import { getAuthHeaders, getApiUrl } from '../lib/api';
 import { Sparkles, X, Check, RefreshCw, AlertCircle, Coins } from 'lucide-react';
 import { BulletEnhanceResponse } from '../types';
 
@@ -46,7 +46,7 @@ export const BulletEnhancerModal: React.FC<BulletEnhancerModalProps> = ({
     setError(null);
 
     try {
-      const res = await fetch('/api/ai/enhance-bullet', {
+      const res = await fetch(getApiUrl('/api/ai/enhance-bullet'), {
         method: 'POST',
         headers: getAuthHeaders(session?.access_token),
         body: JSON.stringify({

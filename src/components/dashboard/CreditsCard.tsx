@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Zap, Clock, TrendingUp } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+import { getApiUrl } from '../../lib/api';
 
 interface CreditsCardProps {
   creditsCount: number;
@@ -21,7 +22,7 @@ export const CreditsCard: React.FC<CreditsCardProps> = ({
     const fetchUsage = async () => {
       if (!accessToken) return;
       try {
-        const res = await fetch('/api/user/usage', {
+        const res = await fetch(getApiUrl('/api/user/usage'), {
           headers: { Authorization: `Bearer ${accessToken}` },
         });
         if (res.ok) {

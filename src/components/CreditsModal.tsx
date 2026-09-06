@@ -1,6 +1,6 @@
 import { useAuth } from '../contexts/AuthContext';
 import React, { useState, useEffect } from 'react';
-import { getAuthHeaders } from '../lib/api';
+import { getAuthHeaders, getApiUrl } from '../lib/api';
 import { 
   X, 
   Coins, 
@@ -36,7 +36,7 @@ export const CreditsModal: React.FC<CreditsModalProps> = ({
 
   const fetchLedger = () => {
     setIsLoading(true);
-    fetch('/api/user/usage', { headers: getAuthHeaders(session?.access_token) })
+    fetch(getApiUrl('/api/user/usage'), { headers: getAuthHeaders(session?.access_token) })
       .then((res) => res.json())
       .then((data) => {
         setUsageHistory(data.usage || []);
@@ -56,7 +56,7 @@ export const CreditsModal: React.FC<CreditsModalProps> = ({
     setIsRefilling(true);
     setRefillStatus(null);
     try {
-      const res = await fetch('/api/user/refill', {
+      const res = await fetch(getApiUrl('/api/user/refill'), {
         method: 'POST',
         headers: getAuthHeaders(session?.access_token),
         body: JSON.stringify({ amount, plan_name: planName }),

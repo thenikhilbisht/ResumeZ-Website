@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { getApiUrl } from '../lib/api';
 import {
   User,
   Mail,
@@ -301,7 +302,7 @@ export const ProfileSettingsView: React.FC<ProfileSettingsViewProps> = ({
   const handleConfirmOtp = async () => {
     try {
       const token = (await supabase.auth.getSession()).data.session?.access_token;
-      const res = await fetch('/api/user/verify-phone', {
+      const res = await fetch(getApiUrl('/api/user/verify-phone'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

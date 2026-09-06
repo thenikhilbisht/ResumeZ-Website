@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState, useCallback } fr
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
 import { UserProfile, UsageBalance } from '../types';
+import { getApiUrl } from '../lib/api';
 
 interface AuthContextType {
   session: Session | null;
@@ -42,7 +43,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       try {
-        const res = await fetch('/api/auth/me', {
+        const res = await fetch(getApiUrl('/api/auth/me'), {
           headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',

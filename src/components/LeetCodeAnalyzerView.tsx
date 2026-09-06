@@ -1,6 +1,6 @@
 import { useAuth } from '../contexts/AuthContext';
 import React, { useState } from 'react';
-import { getAuthHeaders } from '../lib/api';
+import { getAuthHeaders, getApiUrl } from '../lib/api';
 import { 
   Code2, 
   Sparkles, 
@@ -48,7 +48,7 @@ export const LeetCodeAnalyzerView: React.FC<LeetCodeAnalyzerViewProps> = ({
     setError(null);
 
     try {
-      const res = await fetch('/api/ai/analyze-leetcode', {
+      const res = await fetch(getApiUrl('/api/ai/analyze-leetcode'), {
         method: 'POST',
         headers: getAuthHeaders(session?.access_token),
         body: JSON.stringify({ username: userToAudit }),

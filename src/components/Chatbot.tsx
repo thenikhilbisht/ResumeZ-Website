@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { getAuthHeaders } from '../lib/api';
+import { getAuthHeaders, getApiUrl } from '../lib/api';
 import { MessageSquare, X, Send, User, Bot, Loader2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 
@@ -35,7 +35,7 @@ export const Chatbot: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const res = await fetch('/api/ai/chat', {
+      const res = await fetch(getApiUrl('/api/ai/chat'), {
         method: 'POST',
         headers: getAuthHeaders(session?.access_token),
         body: JSON.stringify({

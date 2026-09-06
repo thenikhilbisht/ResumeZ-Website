@@ -1,5 +1,6 @@
 import { useAuth } from '../contexts/AuthContext';
 import React, { useState, useEffect } from 'react';
+import { getApiUrl } from '../lib/api';
 import { 
   Shield, 
   Users, 
@@ -63,11 +64,11 @@ export const AdminView: React.FC<AdminViewProps> = ({ currentUser, onRefreshUser
 
     try {
       const [statsRes, usersRes, settingsRes, paymentsRes, configRes] = await Promise.all([
-        fetch('/api/admin/stats', { headers: { 'Authorization': `Bearer ${session?.access_token}` } }),
-        fetch('/api/admin/users', { headers: { 'Authorization': `Bearer ${session?.access_token}` } }),
-        fetch('/api/admin/settings', { headers: { 'Authorization': `Bearer ${session?.access_token}` } }),
-        fetch('/api/admin/payments', { headers: { 'Authorization': `Bearer ${session?.access_token}` } }),
-        fetch('/api/admin/payment-config', { headers: { 'Authorization': `Bearer ${session?.access_token}` } }),
+        fetch(getApiUrl('/api/admin/stats'), { headers: { 'Authorization': `Bearer ${session?.access_token}` } }),
+        fetch(getApiUrl('/api/admin/users'), { headers: { 'Authorization': `Bearer ${session?.access_token}` } }),
+        fetch(getApiUrl('/api/admin/settings'), { headers: { 'Authorization': `Bearer ${session?.access_token}` } }),
+        fetch(getApiUrl('/api/admin/payments'), { headers: { 'Authorization': `Bearer ${session?.access_token}` } }),
+        fetch(getApiUrl('/api/admin/payment-config'), { headers: { 'Authorization': `Bearer ${session?.access_token}` } }),
       ]);
 
       if (!statsRes.ok || !usersRes.ok) {
@@ -121,7 +122,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ currentUser, onRefreshUser
     setIsVerifyingPaymentId(payment.id);
     setActionSuccessMsg(null);
     try {
-      const res = await fetch('/api/admin/verify-payment', {
+      const res = await fetch(getApiUrl('/api/admin/verify-payment'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -153,7 +154,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ currentUser, onRefreshUser
     if (!selectedPaymentForReject) return;
     setIsVerifyingPaymentId(selectedPaymentForReject.id);
     try {
-      const res = await fetch('/api/admin/verify-payment', {
+      const res = await fetch(getApiUrl('/api/admin/verify-payment'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -185,7 +186,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ currentUser, onRefreshUser
     setIsSavingConfig(true);
     setConfigSavedMsg(null);
     try {
-      const res = await fetch('/api/admin/payment-config', {
+      const res = await fetch(getApiUrl('/api/admin/payment-config'), {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -216,7 +217,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ currentUser, onRefreshUser
 
     setIsAdjusting(true);
     try {
-      const res = await fetch('/api/admin/adjust-credits', {
+      const res = await fetch(getApiUrl('/api/admin/adjust-credits'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
         body: JSON.stringify({

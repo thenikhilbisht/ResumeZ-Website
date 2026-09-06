@@ -64,7 +64,7 @@ import {
 } from './types';
 
 import { useAuth } from './contexts/AuthContext';
-import { getAuthHeaders } from './lib/api';
+import { getAuthHeaders, getApiUrl } from './lib/api';
 import { Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -193,8 +193,8 @@ export default function App() {
     try {
       const headers = getAuthHeaders(userAccessToken);
       const [resumesRes, analysesRes] = await Promise.allSettled([
-        fetch('/api/resumes', { headers }),
-        fetch('/api/analyses', { headers }),
+        fetch(getApiUrl('/api/resumes'), { headers }),
+        fetch(getApiUrl('/api/analyses'), { headers }),
       ]);
 
       if (resumesRes.status === 'fulfilled' && resumesRes.value.ok) {
@@ -238,7 +238,7 @@ export default function App() {
     if (!session?.access_token) return;
 
     if (resumeData.id) {
-      const res = await fetch(`/api/resumes/${resumeData.id}`, {
+      const res = await fetch(getApiUrl(`/api/resumes/${resumeData.id}`), {
         method: 'PUT',
         headers: getAuthHeaders(session.access_token),
         body: JSON.stringify(resumeData),
@@ -248,7 +248,7 @@ export default function App() {
         setResumes((prev) => prev.map((r) => (r.id === data.resume.id ? data.resume : r)));
       }
     } else {
-      const res = await fetch('/api/resumes', {
+      const res = await fetch(getApiUrl('/api/resumes'), {
         method: 'POST',
         headers: getAuthHeaders(session.access_token),
         body: JSON.stringify(resumeData),
@@ -263,7 +263,7 @@ export default function App() {
 
   const handleDeleteResume = async (id: string) => {
     if (!session?.access_token) return;
-    const res = await fetch(`/api/resumes/${id}`, {
+    const res = await fetch(getApiUrl(`/api/resumes/${id}`), {
       method: 'DELETE',
       headers: getAuthHeaders(session.access_token),
     });
@@ -274,7 +274,7 @@ export default function App() {
 
   const handleUpdateProfile = async (data: Partial<UserProfile>) => {
     if (!session?.access_token) return;
-    const res = await fetch('/api/user/profile', {
+    const res = await fetch(getApiUrl('/api/user/profile'), {
       method: 'PUT',
       headers: getAuthHeaders(session.access_token),
       body: JSON.stringify(data),
@@ -290,7 +290,7 @@ export default function App() {
 
   const handleDeleteAccount = async () => {
     if (!session?.access_token) return;
-    const res = await fetch('/api/user/account', {
+    const res = await fetch(getApiUrl('/api/user/account'), {
       method: 'DELETE',
       headers: getAuthHeaders(session.access_token),
     });

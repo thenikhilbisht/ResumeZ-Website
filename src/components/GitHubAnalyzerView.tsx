@@ -1,6 +1,6 @@
 import { useAuth } from '../contexts/AuthContext';
 import React, { useState } from 'react';
-import { getAuthHeaders } from '../lib/api';
+import { getAuthHeaders, getApiUrl } from '../lib/api';
 import { 
   Github, 
   Sparkles, 
@@ -50,7 +50,7 @@ export const GitHubAnalyzerView: React.FC<GitHubAnalyzerViewProps> = ({
     setError(null);
 
     try {
-      const res = await fetch('/api/ai/analyze-github', {
+      const res = await fetch(getApiUrl('/api/ai/analyze-github'), {
         method: 'POST',
         headers: getAuthHeaders(session?.access_token),
         body: JSON.stringify({ username: userToAudit }),

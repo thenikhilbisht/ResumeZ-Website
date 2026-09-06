@@ -3,6 +3,16 @@
  * Handles safe auth header injection, error parsing, and fallback formatting.
  */
 
+const metaEnv = (import.meta as any).env || {};
+
+export const VITE_API_URL = metaEnv.VITE_API_URL ? String(metaEnv.VITE_API_URL).replace(/\/$/, '') : '';
+
+export function getApiUrl(endpoint: string): string {
+  const path = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  if (!VITE_API_URL) return path;
+  return `${VITE_API_URL}${path}`;
+}
+
 export function getAuthHeaders(token?: string | null): Record<string, string> {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
@@ -16,11 +26,17 @@ export function getAuthHeaders(token?: string | null): Record<string, string> {
 }
 
 export async function safeFetch(url: string, options: RequestInit = {}): Promise<Response> {
+  const fullUrl = url.startsWith('http://') || url.startsWith('https://') ? url : getApiUrl(url);
   try {
-    const res = await fetch(url, options);
+    const res = await fetch(fullUrl, {
+      ...options,
+      credentials: options.credentials || 'same-origin',
+    });
     return res;
   } catch (err: any) {
-    throw new Error(err?.message || 'Network connection error. Please check your internet connection or retry.');
+    throw new Error(
+      err?.message || `Unable to reach Railway backend API at ${fullUrl}. Please check your connection.`
+    );
   }
 }
 
