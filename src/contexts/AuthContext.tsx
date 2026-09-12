@@ -36,11 +36,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const fetchProfileAndBalance = useCallback(
     async (activeSession: Session | null) => {
       const token = activeSession?.access_token;
-      if (!token) {
+      if (!token || !activeSession?.user) {
         setProfile(null);
         setBalance(null);
         return;
       }
+
+      // Immediately construct fallback profile from session user so user profile is never null when session exists
+      const sbUser = activeSession.user;
+      const fallbackProfile: UserProfile = {
+        id: sbUser.id,
+        email: sbUser.email || '',
+        full_name: sbUser.user_metadata?.full_name || sbUser.email?.split('@')[0] || 'Candidate User',
+        role: (sbUser.user_metadata?.role as any) || 'candidate',
+        created_at: sbUser.created_at || new Date().toISOString(),
+      };
+
+      setProfile((prev) => prev || fallbackProfile);
+      setBalance((prev) => prev || { credits_remaining: 10, lifetime_credits_used: 0 });
 
       try {
         const res = await fetch(getApiUrl('/api/auth/me'), {
@@ -54,13 +67,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           const data = await res.json();
           if (data.user) setProfile(data.user);
           if (data.balance) setBalance(data.balance);
-        } else if (res.status === 401) {
-          // Token is invalid/expired
-          setProfile(null);
-          setBalance(null);
         }
       } catch (err) {
-        console.warn('[Auth] Error fetching user profile:', err);
+        console.warn('[Auth] Notice fetching user profile:', err);
       }
     },
     []

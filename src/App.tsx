@@ -330,13 +330,21 @@ export default function App() {
     );
   }
 
+  const currentUser = profile || (session?.user ? {
+    id: session.user.id,
+    email: session.user.email || '',
+    full_name: session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'Candidate User',
+    role: (session.user.user_metadata?.role as any) || 'candidate',
+    created_at: session.user.created_at || new Date().toISOString(),
+  } as UserProfile : null);
+
   return (
     <div className="min-h-screen bg-[#080711] text-[#F5F1E8] flex flex-col selection:bg-[#C6A75E] selection:text-[#080711]">
       {/* Navigation Bar */}
       <Navbar
         activeTab={activeTab}
         setActiveTab={navigateTo}
-        user={profile}
+        user={currentUser}
         balance={balance}
         onSwitchRole={undefined as any}
         onLogout={handleLogout}
@@ -391,7 +399,7 @@ export default function App() {
 
               {activeTab === 'dashboard' && (
                 <DashboardView
-                  user={profile}
+                  user={currentUser}
                   balance={balance}
                   resumes={resumes}
                   analyses={analyses}
@@ -445,14 +453,14 @@ export default function App() {
 
               {activeTab === 'admin' && (
                 <AdminView
-                  currentUser={profile}
+                  currentUser={currentUser}
                   onRefreshUserData={loadUserData}
                 />
               )}
 
               {activeTab === 'settings' && (
                 <ProfileSettingsView
-                  user={profile}
+                  user={currentUser}
                   balance={balance}
                   onUpdateProfile={handleUpdateProfile}
                   onOpenCreditsModal={() => setIsCreditsModalOpen(true)}
@@ -466,7 +474,7 @@ export default function App() {
                 <CheckoutPaymentView
                   selectedPlanId={selectedPlanForCheckout}
                   onSelectPlan={(id) => setSelectedPlanForCheckout(id)}
-                  user={profile}
+                  user={currentUser}
                   balance={balance}
                   onBack={() => navigateTo('dashboard')}
                   onPaymentSubmitted={async () => {
