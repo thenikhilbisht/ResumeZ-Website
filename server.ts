@@ -1091,31 +1091,47 @@ Provide an honest, constructive software engineering assessment including develo
 
     if (!parsedResult || !parsedResult.overall_score) {
       const topLang = repoSummaries[0]?.language || 'TypeScript';
+      const repoCount = profileData.public_repos || 0;
+      const totalStars = repoSummaries.reduce((acc: number, r: any) => acc + (r.stars || 0), 0);
+      const followerCount = profileData.followers || 0;
+
+      let calcScore = 10;
+      if (repoCount === 0) {
+        calcScore = 15;
+      } else {
+        calcScore += Math.min(45, repoCount * 4);
+        calcScore += Math.min(20, totalStars * 3);
+        calcScore += Math.min(15, followerCount * 2);
+        if (profileData.bio || repoSummaries.some((r: any) => r.has_homepage)) {
+          calcScore += 5;
+        }
+      }
+      const realGHScore = Math.min(95, Math.max(15, calcScore));
+
       parsedResult = {
         username: cleanUsername,
-        overall_score: Math.min(95, Math.max(68, (profileData.public_repos * 2) + (profileData.followers * 3) + 70)),
-        developer_archetype: `${topLang} & Full-Stack Engineer`,
+        overall_score: realGHScore,
+        developer_archetype: repoCount > 0 ? `${topLang} Developer` : 'Junior Technical Profile',
         profile_summary: {
           name: profileData.name || cleanUsername,
           bio: profileData.bio || 'Software Developer & Technical Builder',
           avatar_url: profileData.avatar_url || '',
-          total_public_repos: profileData.public_repos || 0,
-          total_stars: repoSummaries.reduce((acc: number, r: any) => acc + (r.stars || 0), 0),
-          followers: profileData.followers || 0,
+          total_public_repos: repoCount,
+          total_stars: totalStars,
+          followers: followerCount,
           following: profileData.following || 0,
-          primary_languages: [
-            { language: topLang, percentage: 65 },
-            { language: 'JavaScript/HTML', percentage: 35 },
-          ],
+          primary_languages: repoCount > 0 ? [
+            { language: topLang, percentage: 70 },
+            { language: 'Other', percentage: 30 },
+          ] : [],
         },
-        portfolio_strengths: [
-          `Active GitHub profile with ${profileData.public_repos} public repositories`,
-          `Demonstrated repository experience in ${topLang}`,
-          'Public open-source code footprint',
-        ],
+        portfolio_strengths: repoCount > 0 ? [
+          `Public GitHub profile with ${repoCount} repositories`,
+          `Codebase experience in ${topLang}`,
+        ] : ['Created GitHub account'],
         portfolio_weaknesses: [
-          'Add comprehensive README documentation and setup instructions across all repositories',
-          'Include automated CI/CD unit testing workflows (e.g. GitHub Actions)',
+          'Add detailed README documentation and installation instructions across repositories',
+          'Build more pinned showcase projects and add unit test coverage',
         ],
         top_repositories_reviewed: repoSummaries.slice(0, 5).map((r: any) => ({
           name: r.name,
@@ -1123,12 +1139,12 @@ Provide an honest, constructive software engineering assessment including develo
           language: r.language,
           stars: r.stars,
           forks: r.forks,
-          insights: `Active project built with ${r.language}.`,
+          insights: `Project built with ${r.language}.`,
           readme_quality: r.has_homepage ? 'comprehensive' : 'basic',
         })),
         actionable_recommendations: [
-          { priority: 'high', area: 'documentation', suggestion: 'Create detailed READMEs with setup, usage, and architecture overview.' },
-          { priority: 'medium', area: 'testing', suggestion: 'Add automated Jest/Vitest unit test suites.' },
+          { priority: 'high', area: 'documentation', suggestion: 'Create clear READMEs for your main repositories.' },
+          { priority: 'medium', area: 'project_variety', suggestion: 'Build 2-3 full-stack showcase projects.' },
         ],
       };
     }
@@ -1333,41 +1349,53 @@ Provide an algorithmic competency evaluation, FAANG interview readiness tier, pr
 
     if (!parsedResult || !parsedResult.overall_score) {
       const statsList = leetcodeStats?.submitStats?.acSubmissionNum || [];
-      const easyCount = statsList.find((s: any) => s.difficulty === 'Easy')?.count || 55;
-      const medCount = statsList.find((s: any) => s.difficulty === 'Medium')?.count || 52;
-      const hardCount = statsList.find((s: any) => s.difficulty === 'Hard')?.count || 13;
+      const easyCount = statsList.find((s: any) => s.difficulty === 'Easy')?.count || 0;
+      const medCount = statsList.find((s: any) => s.difficulty === 'Medium')?.count || 0;
+      const hardCount = statsList.find((s: any) => s.difficulty === 'Hard')?.count || 0;
       const totalSolved = statsList.find((s: any) => s.difficulty === 'All')?.count || (easyCount + medCount + hardCount);
+
+      let realLCScore = 5;
+      if (totalSolved === 0) {
+        realLCScore = 5;
+      } else if (totalSolved <= 5) {
+        realLCScore = Math.floor(10 + totalSolved * 3); // 3 solved -> 19/100
+      } else {
+        const basePoints = Math.min(25, totalSolved * 1.5);
+        const easyPts = Math.min(20, easyCount * 0.4);
+        const medPts = Math.min(40, medCount * 0.8);
+        const hardPts = Math.min(25, hardCount * 1.5);
+        realLCScore = Math.min(98, Math.max(10, Math.floor(basePoints + easyPts + medPts + hardPts)));
+      }
 
       parsedResult = {
         username: cleanUsername,
-        overall_score: Math.min(95, Math.max(65, Math.floor((totalSolved * 0.4) + (medCount * 0.4) + (hardCount * 0.8) + 40))),
+        overall_score: realLCScore,
         problem_solving_summary: {
           total_solved: totalSolved,
           easy_count: easyCount,
           medium_count: medCount,
           hard_count: hardCount,
-          global_ranking: leetcodeStats?.profile?.ranking || 185000,
-          acceptance_rate: 66.5,
-          contest_rating: 1620,
+          global_ranking: leetcodeStats?.profile?.ranking || 0,
+          acceptance_rate: totalSolved > 0 ? 65.0 : 0,
+          contest_rating: 0,
         },
         readiness_assessment: {
-          faang_readiness_level: medCount >= 50 ? 'intermediate' : 'entry',
-          consistency_rating: totalSolved >= 100 ? 'high' : 'moderate',
-          recommended_focus_areas: ['Dynamic Programming', 'Graph Traversal (BFS/DFS)', 'System Design'],
+          faang_readiness_level: totalSolved >= 100 ? 'interview_ready' : medCount >= 30 ? 'intermediate' : 'entry',
+          consistency_rating: totalSolved >= 50 ? 'high' : totalSolved >= 10 ? 'moderate' : 'just_started',
+          recommended_focus_areas: ['Array & Hash Maps', 'Two Pointers', 'Binary Search'],
         },
-        strengths: [
-          `Solved ${totalSolved} total problems (${medCount} Medium difficulty)`,
-          'Solid grasp of Array & String algorithm patterns',
-          'Good submission consistency profile',
-        ],
+        strengths: totalSolved > 0 ? [
+          `Solved ${totalSolved} total LeetCode problems`,
+          easyCount > 0 ? `Completed ${easyCount} Easy fundamental problems` : 'Started algorithm problem-solving journey',
+        ] : ['Created LeetCode profile'],
         gaps_identified: [
-          'Increase Hard problem solve count to 25+ for Tier-1 FAANG technical rounds',
-          'Practice Advanced Graph (Dijkstra, Topological Sort) and Dynamic Programming',
+          'Increase Medium difficulty solve count (target 50+ Mediums for technical interviews)',
+          'Master Two Pointers, Sliding Window, and Tree Traversal (BFS/DFS) patterns',
         ],
         targeted_study_plan: [
-          { topic: 'Sliding Window & Two Pointers', recommended_problem_types: ['Longest Substring Without Repeating Characters', '3Sum'], priority: 'urgent' },
-          { topic: 'Trees & Graph Traversal (BFS/DFS)', recommended_problem_types: ['Binary Tree Level Order Traversal', 'Course Schedule II'], priority: 'recommended' },
-          { topic: 'Dynamic Programming', recommended_problem_types: ['Coin Change', 'Longest Increasing Subsequence'], priority: 'urgent' },
+          { topic: 'Arrays & Hashing', recommended_problem_types: ['Two Sum', 'Contains Duplicate', 'Valid Anagram'], priority: 'urgent' },
+          { topic: 'Two Pointers & Sliding Window', recommended_problem_types: ['Valid Palindrome', 'Two Sum II', 'Best Time to Buy and Sell Stock'], priority: 'urgent' },
+          { topic: 'Binary Search & Fast Pointers', recommended_problem_types: ['Binary Search', 'Linked List Cycle'], priority: 'recommended' },
         ],
       };
     }
