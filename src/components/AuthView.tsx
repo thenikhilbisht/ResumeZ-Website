@@ -21,29 +21,50 @@ export const AuthView: React.FC = () => {
       if (!supabase) {
         throw new Error('Authentication service is not configured. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in Vercel environment variables.');
       }
+
       if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) {
-          if (error.message.includes('Invalid login credentials')) {
-            throw new Error("Invalid email or password. If you don't have an account yet, click 'Sign up' below to create one.");
+          const msg = error.message || '';
+          if (msg.includes('Invalid login credentials')) {
+            throw new Error("Invalid email or password. If you haven't created an account yet, click 'Sign up' below to create one.");
+          }
+          if (msg.includes('Email not confirmed')) {
+            throw new Error("Your email address is not confirmed yet. Please check your inbox or spam folder for the confirmation email.");
           }
           throw error;
         }
       } else {
+        if (!fullName || !fullName.trim()) {
+          throw new Error('Please enter your full name.');
+        }
+        if (password.length < 6) {
+          throw new Error('Password must be at least 6 characters long.');
+        }
+
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
             data: {
-              full_name: fullName,
+              full_name: fullName.trim(),
               role: 'candidate',
             },
           },
         });
         if (error) throw error;
 
-        if (data?.user) {
-          setSuccessMessage('Account created successfully! You can now sign in with your credentials.');
+        // Check if user already exists (Supabase returns user with empty identities array when user already exists)
+        if (data?.user && data.user.identities && data.user.identities.length === 0) {
+          setError('An account with this email address already exists. Please click "Sign in" below to log in.');
+          setIsLogin(true);
+          return;
+        }
+
+        if (data?.session) {
+          setSuccessMessage('Account created and signed in successfully!');
+        } else if (data?.user) {
+          setSuccessMessage('Account created successfully! If required by your settings, please check your email inbox to confirm your account, or sign in now.');
           setIsLogin(true);
         }
       }
