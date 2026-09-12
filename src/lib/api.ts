@@ -4,13 +4,19 @@
  */
 
 const metaEnv = (import.meta as any).env || {};
+const DEFAULT_RAILWAY_URL = 'https://resumez-website-production.up.railway.app';
 
-export const VITE_API_URL = metaEnv.VITE_API_URL ? String(metaEnv.VITE_API_URL).replace(/\/$/, '') : '';
+export const VITE_API_URL = metaEnv.VITE_API_URL
+  ? String(metaEnv.VITE_API_URL).replace(/\/$/, '')
+  : (typeof window !== 'undefined' && !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1')
+      ? DEFAULT_RAILWAY_URL
+      : '');
 
 export function getApiUrl(endpoint: string): string {
   const path = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
-  if (!VITE_API_URL) return path;
-  return `${VITE_API_URL}${path}`;
+  const baseUrl = VITE_API_URL || (typeof window !== 'undefined' && !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1') ? DEFAULT_RAILWAY_URL : '');
+  if (!baseUrl) return path;
+  return `${baseUrl}${path}`;
 }
 
 export function getAuthHeaders(token?: string | null): Record<string, string> {
