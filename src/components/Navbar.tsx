@@ -525,7 +525,8 @@ export const Navbar: React.FC<NavbarProps> = ({
             </>
           ) : (
             <button
-              onClick={() => setActiveTab('dashboard')}
+              id="nav-sign-in-btn"
+              onClick={() => setActiveTab('auth')}
               className="rounded-lg btn-gold-primary px-5 py-2 text-xs font-semibold shadow-xs transition hover:scale-105 cursor-pointer text-[#080711]"
             >
               Sign In
@@ -556,7 +557,8 @@ export const Navbar: React.FC<NavbarProps> = ({
             </>
           ) : (
             <button
-              onClick={() => setActiveTab('dashboard')}
+              id="mobile-nav-sign-in-btn"
+              onClick={() => setActiveTab('auth')}
               className="rounded-lg btn-gold-primary px-3 py-1.5 text-[11px] font-semibold shadow-xs transition cursor-pointer text-[#080711]"
             >
               Sign In

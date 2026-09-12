@@ -137,19 +137,59 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
         ]
       : [];
 
-  // Real or fallback career health metrics
-  const careerHealthMetrics = defaultCareerHealthMetrics.map((metric) => {
-    if (metric.id === 'ats' && latestATS) {
-      return { ...metric, score: latestATS.overall_score };
-    }
-    if (metric.id === 'github' && latestGH) {
-      return { ...metric, score: latestGH.overall_score };
-    }
-    if (metric.id === 'coding' && latestLC) {
-      return { ...metric, score: latestLC.overall_score };
-    }
-    return metric;
-  });
+  // Real live career health metrics derived from actual database records
+  const careerHealthMetrics = [
+    {
+      id: 'resume',
+      title: 'Resume Drafts',
+      score: resumes.length > 0 ? (highestResume ?? 80) : 0,
+      maxScore: 100,
+      status: resumes.length > 0 ? (highestResume && highestResume >= 80 ? 'Strong' : 'Created') : 'No Resumes Yet',
+      statusColor: resumes.length > 0 ? ('gold' as const) : ('amber' as const),
+      ringColor: '#C6A75E',
+    },
+    {
+      id: 'ats',
+      title: 'ATS Compatibility',
+      score: latestATS ? latestATS.overall_score : 0,
+      maxScore: 100,
+      status: latestATS
+        ? latestATS.overall_score >= 80
+          ? 'Strong Match'
+          : latestATS.overall_score >= 60
+          ? 'Good Match'
+          : 'Needs Audit'
+        : 'Not Analyzed',
+      statusColor: latestATS ? ('amber' as const) : ('amber' as const),
+      ringColor: '#C49A4A',
+    },
+    {
+      id: 'github',
+      title: 'GitHub Profile',
+      score: latestGH ? latestGH.overall_score : 0,
+      maxScore: 100,
+      status: latestGH
+        ? latestGH.overall_score >= 80
+          ? 'Strong Portfolio'
+          : 'Moderate Portfolio'
+        : 'Not Audited',
+      statusColor: latestGH ? ('indigo' as const) : ('amber' as const),
+      ringColor: '#6366A8',
+    },
+    {
+      id: 'coding',
+      title: 'Coding Readiness',
+      score: latestLC ? latestLC.overall_score : 0,
+      maxScore: 100,
+      status: latestLC
+        ? latestLC.overall_score >= 80
+          ? 'Interview Ready'
+          : 'In Progress'
+        : 'Not Audited',
+      statusColor: latestLC ? ('gold' as const) : ('amber' as const),
+      ringColor: '#C49A4A',
+    },
+  ];
 
   const creditsCount = balance?.credits_remaining ?? 0;
 

@@ -138,11 +138,15 @@ export default function App() {
   useEffect(() => {
     const handlePopState = () => {
       const tab = pathToTab(window.location.pathname);
-      setActiveTab(tab);
+      if (!session && PROTECTED_TABS.has(tab)) {
+        navigateTo('auth', true);
+      } else {
+        setActiveTab(tab);
+      }
     };
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
-  }, []);
+  }, [session, navigateTo]);
 
   const isAuthenticated = Boolean(session);
   const userAccessToken = session?.access_token;
@@ -166,7 +170,7 @@ export default function App() {
       // Unauthenticated user
       if (PROTECTED_TABS.has(currentTab)) {
         // Redirect to login if trying to access protected route
-        setActiveTab('auth');
+        navigateTo('auth', true);
       } else if (currentTab === 'not-found') {
         setActiveTab('not-found');
       } else if (currentTab === 'auth') {

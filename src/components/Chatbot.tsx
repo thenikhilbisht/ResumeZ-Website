@@ -46,13 +46,20 @@ export const Chatbot: React.FC = () => {
 
       const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.message || 'Failed to get a response');
+        throw new Error(data.error || data.message || 'Failed to get a response from AI consultant.');
       }
 
-      setMessages([...newMessages, { role: 'assistant', content: data.reply }]);
+      setMessages([...newMessages, { role: 'assistant', content: data.reply || 'How else can I assist with your resume or interview prep?' }]);
     } catch (err: any) {
-      console.error(err);
-      setMessages([...newMessages, { role: 'assistant', content: 'Sorry, I encountered an error. Please try again later.' }]);
+      console.error('[AI Chatbot Error]:', err);
+      const errorMessage = err?.message || 'Unable to connect to AI Consultant service.';
+      setMessages([
+        ...newMessages,
+        {
+          role: 'assistant',
+          content: `⚠️ **AI Consultant Notice**: ${errorMessage}\n\nPlease check your internet connection or ensure the \`GEMINI_API_KEY\` environment variable is properly set in your backend host (Railway/Vercel).`,
+        },
+      ]);
     } finally {
       setIsLoading(false);
     }
