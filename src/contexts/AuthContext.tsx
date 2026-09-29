@@ -42,18 +42,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return;
       }
 
-      // Immediately construct fallback profile from session user so user profile is never null when session exists
       const sbUser = activeSession.user;
+      const now = new Date().toISOString();
       const fallbackProfile: UserProfile = {
         id: sbUser.id,
         email: sbUser.email || '',
         full_name: sbUser.user_metadata?.full_name || sbUser.email?.split('@')[0] || 'Candidate User',
         role: (sbUser.user_metadata?.role as any) || 'candidate',
-        created_at: sbUser.created_at || new Date().toISOString(),
+        created_at: sbUser.created_at || now,
+        updated_at: now,
+      };
+
+      const fallbackBalance: UsageBalance = {
+        user_id: sbUser.id,
+        credits_remaining: 10,
+        lifetime_credits_used: 0,
+        last_refill_at: now,
+        updated_at: now,
       };
 
       setProfile((prev) => prev || fallbackProfile);
-      setBalance((prev) => prev || { credits_remaining: 10, lifetime_credits_used: 0 });
+      setBalance((prev) => prev || fallbackBalance);
 
       try {
         const res = await fetch(getApiUrl('/api/auth/me'), {

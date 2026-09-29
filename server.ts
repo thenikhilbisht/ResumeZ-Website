@@ -180,7 +180,10 @@ function decodeJwtPayload(token: string): any {
   try {
     const parts = token.split('.');
     if (parts.length !== 3) return null;
-    const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+    let base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+    while (base64.length % 4 !== 0) {
+      base64 += '=';
+    }
     const jsonStr = Buffer.from(base64, 'base64').toString('utf8');
     return JSON.parse(jsonStr);
   } catch {
