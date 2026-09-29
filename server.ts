@@ -64,8 +64,8 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 });
 
 // ---------------- Supabase Admin Client (Server-Side Only) ----------------
-const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || 'https://czadgqloetsbyjznjtng.supabase.co';
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SECRET_KEY || '';
 
 const isSupabaseAdminConfigured = Boolean(
   supabaseUrl &&
